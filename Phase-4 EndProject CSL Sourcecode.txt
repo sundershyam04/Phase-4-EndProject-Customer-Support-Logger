@@ -1,0 +1,473 @@
+Phase-4 EndProject Customer Support Logger 
+
+Github: https://github.com/sundershyam04/Phase-4-endproject-Customer-Support-Logger.git
+
+------------------------------------------------SOURCE CODE-----------------------------------
+
+mvc:
+
+CSLController.cs
+
+using Customer_Support_Logger.Models;
+using DAL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.UI.WebControls;
+
+namespace Customer_Support_Logger.Controllers
+{
+    public class CSLController : Controller
+    {
+        CSLoperations operations;
+        public CSLController()
+        {
+            operations = new CSLoperations();
+
+        }
+        // GET: CSL
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(User u)
+        {
+            bool status = operations.ValidateUser(u.UserId, u.Email, u.Password);
+            if (status)
+            {
+                return RedirectToAction("CustLogger", "CSL");
+            }
+
+            else
+            {
+                ViewBag.Message = "Invalid credentials";
+              
+                return View(u);
+            }
+
+        }
+
+        public ActionResult CustLogger()
+        {
+            return View();
+
+        }
+
+        [HttpPost]
+        public ActionResult CustLogger(CustLog log)
+        {
+            CustLogInfo c = new CustLogInfo();
+
+            c.LogId = log.LogId;
+
+            c.CustEmail = log.CustEmail;
+
+            c.CustName = log.CustName;
+
+            c.LogStatus = log.LogStatus;
+
+            c.Description = log.Description;
+
+            bool status = operations.Registerlog(c);
+
+            if(status)
+            {
+
+                ViewBag.Message = "Compliant is registered successfully!";
+                return View();
+            }
+            else
+            {
+                ViewBag.Message = "Compliant is not registered";  
+                return View(log);
+            }
+            
+        }
+
+
+
+    }
+}
+---------------------------------------
+Models:
+User.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace Customer_Support_Logger.Models
+{
+    public class User
+    {
+        [Key]
+        public int UserId { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+
+
+    }
+}
+
+
+----------------------------------------
+
+CustLog.cs
+
+using DAL;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace Customer_Support_Logger.Models
+{
+    public class CustLog
+    {
+        [Key]
+        public int LogId { get; set; }
+        public string CustEmail { get; set; }
+        public string CustName { get; set; }
+        public string LogStatus { get; set; }
+        public int UserId { get; set; }
+        public string Description { get; set; }
+
+
+        //public virtual UserInfo UserInfo { get; set; }
+
+    }
+}--------------------------------------------
+
+Views: CSLController
+
+Index.cs
+
+@model Customer_Support_Logger.Models.User
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Customer Support Executive Login Page</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.UserId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.UserId, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.PasswordFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>  
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Login" class="btn btn-default" />
+
+            </div>
+            <h3>@ViewBag.Message</h3>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+--------------------
+
+CustLogger.cs
+
+@model Customer_Support_Logger.Models.CustLog
+
+@{
+    ViewBag.Title = "CustLogger";
+}
+
+<h2>Add Customer Compliants</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+<div class="form-horizontal" style="outline-width:20px">
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-group">
+        @Html.LabelFor(model => model.LogId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.LogId, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LogId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.CustEmail, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.CustEmail, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.CustEmail, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.CustName, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.CustName, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.CustName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.LogStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.LogStatus, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LogStatus, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.UserId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.UserId, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Submit" class="btn btn-default" />
+        </div>
+    </div>
+    <h3>@ViewBag.Message</h3>
+</div>
+}
+
+<div>
+    @Html.ActionLink("Logout", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+--------------------------------
+DAL:
+
+cslDB.Context.cs
+
+namespace DAL
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
+    
+    public partial class csldbEntities : DbContext
+    {
+        public csldbEntities()
+            : base("name=csldbEntities")
+        {
+        }
+    
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            throw new UnintentionalCodeFirstException();
+        }
+    
+        public virtual DbSet<CustLogInfo> CustLogInfoes { get; set; }
+        public virtual DbSet<UserInfo> UserInfoes { get; set; }
+        public virtual DbSet<database_firewall_rules> database_firewall_rules { get; set; }
+    }
+}
+------------
+CustLogInfo.cs
+
+namespace DAL
+{
+    using System;
+    using System.Collections.Generic;
+    
+    public partial class CustLogInfo
+    {
+        public int LogId { get; set; }
+        public string CustEmail { get; set; }
+        public string CustName { get; set; }
+        public string LogStatus { get; set; }
+        public Nullable<int> UserId { get; set; }
+        public string Description { get; set; }
+    
+        public virtual UserInfo UserInfo { get; set; }
+    }
+}
+-----------------------
+UserInfo.cs
+
+namespace DAL
+{
+    using System;
+    using System.Collections.Generic;
+    
+    public partial class UserInfo
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public UserInfo()
+        {
+            this.CustLogInfoes = new HashSet<CustLogInfo>();
+        }
+    
+        public int UserId { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CustLogInfo> CustLogInfoes { get; set; }
+    }
+}
+
+----------------------------------------------
+
+CSLoperations.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DAL
+{
+    public class CSLoperations
+    {
+
+        csldbEntities context;
+
+        public CSLoperations()
+        {
+            context = new csldbEntities();
+        }
+
+        public bool ValidateUser(int u, string email,string pw)
+        {
+
+            var found = context.UserInfoes.ToList().Find(w => ((w.UserId == u) && (w.Email == email) && (w.Password == pw)));
+
+            return found != null;
+        }
+
+        public bool Registerlog(CustLogInfo c)
+        {
+            try
+            {
+                var done = context.CustLogInfoes.Add(c);
+                context.SaveChanges();
+                return true;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
+    }
+}
+
+------------------------
+DALTest
+
+CSLTests.cs
+
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DAL;
+
+namespace DALTest
+{
+    [TestFixture]
+    public class CSLTests
+    {
+        CSLoperations operations;
+        public CSLTests()
+        {
+           operations = new CSLoperations();
+        }
+
+        //UserInfoTest
+        //[Test]
+
+        [TestCase(1,"ravi@gmail.com","Ravi@123",ExpectedResult =true)]
+        public bool ValidateUser(int user, string email,string pw)
+        {
+           
+            var found = operations.ValidateUser(user,email, pw);
+
+            return found;
+
+        }
+
+        //custloginfo
+
+        [Test]
+        public bool GetAllLoginInfoTest()
+        {
+            csldbEntities context = new csldbEntities();
+            var got = context.CustLogInfoes.ToList();
+            return got != null;
+        }
+
+        [Test]
+        [TestCase("Ravi", ExpectedResult = true)]
+        [TestCase("Ram", ExpectedResult = false)]
+        public bool SaveCustLogInfoTest(string s)
+        {
+            csldbEntities context = new csldbEntities();
+            var found = context.CustLogInfoes.ToList().Find(c => c.CustName == s);
+
+            return found != null;
+
+        }
+
+
+    }
+}
+
+---------------------------------------------------------

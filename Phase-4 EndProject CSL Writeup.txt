@@ -1,0 +1,27 @@
+Phase-4 EndProject Customer Support Logger 
+
+Github: https://github.com/sundershyam04/Phase-4-endproject-Customer-Support-Logger.git
+
+---------------------------Writeup------------------------------------
+
+
+1) An ASP.NET web app MVC is created named Customer support logger with docker support enabled
+
+2) Azure SQL SERVER is created inside which a sql database is running. 
+
+3)With SSMS,  connect the azure database server with login credentials and create Userinfo and custloginfo tables
+
+4) DAL class is created with entity data model (ADO.NET) file using DBfirst approach to the database created in Azure
+
+5) connection string s are added in Web.config and App.confile of respective projects
+
+6) DALTest project is created for NUnit testing purposes of 2 tables
+
+7) Necessary references , project dependencies and Packages are downloaded from NuGet package downloader
+
+8) CSLcontroller is created in which index page indicates Loginpage for Customer support  (only valid users from userinfo table are allowed to compliants page)
+
+9) CustLogger indicates page in which compliants are registered corresponding status messages are displayed using ViewBag
+
+10) app tested with nunit and builded as per specifications in JenKins.
+
